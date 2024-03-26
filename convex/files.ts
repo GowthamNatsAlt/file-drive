@@ -4,6 +4,16 @@ import { getUser } from "./users";
 
 // Mutation is an endpoint from frontend code used to alter stuff on convex database
 
+export const generateUploadUrl = mutation(async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+        throw new ConvexError("You must be logged in to upload a file.")
+    }
+
+    return await ctx.storage.generateUploadUrl();
+});
+
 async function hasAccessToOrg(
     ctx: QueryCtx | MutationCtx, 
     tokenIdentifier: string, 

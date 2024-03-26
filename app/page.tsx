@@ -40,6 +40,7 @@ export default function Home() {
   // Logic to allow usage of both personal and organizational authorization
   const organization = useOrganization();
   const user = useUser();
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
 
   // Form hook component
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,8 +54,15 @@ export default function Home() {
   const fileRef = form.register("file");
 
   // Submit handler
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+    const postUrl = await generateUploadUrl();
+
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": selectedImage!.type },
+      body: selectedImage
+    })
   }
 
   // Check if organization and user are loaded 
