@@ -55,14 +55,25 @@ export default function Home() {
 
   // Submit handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    if (!orgId) return;
+    
     const postUrl = await generateUploadUrl();
 
     const result = await fetch(postUrl, {
       method: "POST",
-      headers: { "Content-Type": selectedImage!.type },
-      body: selectedImage
-    })
+      headers: { "Content-Type": values.file[0].type },
+      body: values.file[0]
+    });
+
+    const { storageId } = await result.json();
+
+    await createFile({
+      name: values.title,
+      fileId: storageId,
+      orgId
+    });
+
+    form.reset();
   }
 
   // Check if organization and user are loaded 
@@ -89,11 +100,7 @@ export default function Home() {
           <DialogTrigger asChild>
             <Button 
               onClick={() => {
-                if (!orgId) return;
-                createFile({
-                  name: "hello world",
-                  orgId
-                });
+                
               }}
             >
               Click Me
