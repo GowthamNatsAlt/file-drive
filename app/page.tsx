@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useState } from "react";
 
 
 // Form Schema with File custom type
@@ -74,6 +75,8 @@ export default function Home() {
     });
 
     form.reset();
+
+    setIsFileDialogOpen(false);
   }
 
   // Check if organization and user are loaded 
@@ -82,6 +85,8 @@ export default function Home() {
   if (organization.isLoaded && user.isLoaded) {
     orgId = organization.organization?.id ?? user.user?.id;
   }
+
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
 
   // Pull the file CRUD functions
   const files = useQuery(
@@ -96,13 +101,9 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Your Files</h1>
 
         {/* Dialog box for the file upload dialog box */}
-        <Dialog>
+        <Dialog open={isFileDialogOpen} onOpenChange={setIsFileDialogOpen}>
           <DialogTrigger asChild>
-            <Button 
-              onClick={() => {
-                
-              }}
-            >
+            <Button onClick={() => {}}>
               Click Me
             </Button>
           </DialogTrigger>
