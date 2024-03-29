@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { api } from "@/convex/_generated/api";
-import { SignInButton, SignOutButton, SignedIn, SignedOut, useOrganization, useSession, useUser } from "@clerk/nextjs";
+import { useOrganization, useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import {
   Dialog,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast"
 
 
 // Form Schema with File custom type
@@ -37,6 +38,8 @@ const formSchema = z.object({
 })
 
 export default function Home() {
+  // Toast component
+  const { toast } = useToast();
 
   // Logic to allow usage of both personal and organizational authorization
   const organization = useOrganization();
@@ -68,15 +71,29 @@ export default function Home() {
 
     const { storageId } = await result.json();
 
-    await createFile({
-      name: values.title,
-      fileId: storageId,
-      orgId
-    });
+    try {
+      await createFile({
+        name: values.title,
+        fileId: storageId,
+        orgId
+      });
 
-    form.reset();
+      form.reset();
 
-    setIsFileDialogOpen(false);
+      setIsFileDialogOpen(false);
+
+      toast({
+        variant: "success",
+        title: "File Uploaded",
+        description: "The file is now ready to be viewed."
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "Your file could not be uploaded, try again later."
+      });
+    }    
   }
 
   // Check if organization and user are loaded 
@@ -101,10 +118,13 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Your Files</h1>
 
         {/* Dialog box for the file upload dialog box */}
-        <Dialog open={isFileDialogOpen} onOpenChange={setIsFileDialogOpen}>
+        <Dialog open={isFileDialogOpen} onOpenChange={(isOpen) => {
+          setIsFileDialogOpen(isOpen);
+          form.reset();
+        }}>
           <DialogTrigger asChild>
             <Button onClick={() => {}}>
-              Click Me
+              Upload File
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -138,11 +158,6 @@ export default function Home() {
                             <Input 
                               type="file" 
                               {...fileRef}
-                              // {...field} 
-                              // onChange={(event) => {
-                              //   if (!event.target.files) return;
-                              //   onChange(event.target.files[0]);
-                              // }}
                             />
                           </FormControl>
                           <FormMessage />
