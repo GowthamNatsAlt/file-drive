@@ -131,9 +131,9 @@ export default function Home() {
             <DialogHeader>
               <DialogTitle className="mb-8">Upload your file here</DialogTitle>
               <DialogDescription>
+                {/* Form involved in file upload */}
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    
                     <FormField
                       control={form.control}
                       name="title"
