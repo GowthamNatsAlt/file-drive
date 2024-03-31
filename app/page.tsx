@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast"
+import { Loader2 } from "lucide-react";
 
 
 // Form Schema with File custom type
@@ -165,7 +166,16 @@ export default function Home() {
                       )}
                     />
 
-                    <Button type="submit">Submit</Button>
+                    <Button 
+                      type="submit"
+                      disabled={form.formState.isSubmitting}
+                      className="flex gap-1"
+                    >
+                      {form.formState.isSubmitting && (
+                        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                      )}
+                      Submit
+                    </Button>
                   </form>
                 </Form>
               </DialogDescription>
