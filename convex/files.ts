@@ -6,11 +6,9 @@ import { getUser } from "./users";
 
 export const generateUploadUrl = mutation(async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
-
     if (!identity) {
         throw new ConvexError("You must be logged in to upload a file.")
     }
-
     return await ctx.storage.generateUploadUrl();
 });
 
@@ -23,7 +21,6 @@ async function hasAccessToOrg(
 
     // Check is user access
     const hasAccess = user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
-
     return hasAccess;
 }
 
@@ -34,9 +31,9 @@ export const createFile = mutation({
         orgId: v.string()
     },
     async handler(ctx, args) {
+
         // Check if there's an auth identity
         const identity = await ctx.auth.getUserIdentity();
-
         if (!identity) {
             throw new ConvexError("You must be logged in.")
         }
@@ -47,7 +44,6 @@ export const createFile = mutation({
             identity.tokenIdentifier,
             args.orgId
         );
-
         if (!hasAccess) {
             throw new ConvexError("You do not have access to this organization.")
         }
@@ -67,7 +63,6 @@ export const getFiles = query({
     },
     async handler(ctx, args) {
         const identity = await ctx.auth.getUserIdentity();
-
         if (!identity) {
             return [];
         }
@@ -78,7 +73,6 @@ export const getFiles = query({
             identity.tokenIdentifier,
             args.orgId
         );
-
         if (!hasAccess) {
             return [];
         }
@@ -90,3 +84,33 @@ export const getFiles = query({
                 .collect();
     }
 });
+
+export const deleteFile = mutation({
+  args: {
+    fileId: v.id('files')
+  }, 
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+        throw new ConvexError("You don't have access to this organization.");
+    }
+    
+    // Get the file back if exists
+    const file = await ctx.db.get(args.fileId);
+    if (!file) {
+      throw new ConvexError("This file doesn't exist.");
+    }
+
+    const hasAccess = await hasAccessToOrg(
+        ctx,
+        identity.tokenIdentifier,
+        file.orgId
+    );
+    if (!hasAccess) {
+        throw new ConvexError("You don't have access to delete this file.");
+    }
+
+    // Delete file
+    await ctx.db.delete(args.fileId);
+  }
+})
