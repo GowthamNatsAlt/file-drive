@@ -7,11 +7,31 @@ import UploadButton from "./upload-button";
 import FileCard from "./file-card";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
+import SearchBar from "./search-bar";
+import { useState } from "react";
+
+function Placeholder() {
+  return (
+    <div className="flex flex-col gap-8 w-full items-center mt-24">
+        <Image 
+            alt="An image of a picture and directory icons"
+            width="300"
+            height="300"
+            src="/empty.svg"
+          />
+          <div className="text-2xl">
+            You have no files, upload one now.
+          </div>
+          <UploadButton />
+      </div>
+  )
+}
 
 export default function Home() {
   // Logic to allow usage of both personal and organizational authorization
   const organization = useOrganization();
   const user = useUser();
+  const [query, setQuery] = useState("");
 
   // Check if organization and user are loaded 
   let orgId: string | undefined = undefined;
@@ -22,7 +42,7 @@ export default function Home() {
   // Pull the file CRUD functions
   const files = useQuery(
     api.files.getFiles, 
-    orgId ? { orgId } : "skip"
+    orgId ? { orgId, query } : "skip"
   );
   const isLoading = files === undefined;
 
@@ -36,30 +56,17 @@ export default function Home() {
         </div>
       )}
 
-      {/* If there are no files, just display that the files are to be added  */}
-      {!isLoading && files.length === 0 && (
-          <div className="flex flex-col gap-8 w-full items-center mt-24">
-            <Image 
-                alt="An image of a picture and directory icons"
-                width="300"
-                height="300"
-                src="/empty.svg"
-              />
-              <div className="text-2xl">
-                You have no files, upload one now.
-              </div>
-              <UploadButton />
-          </div>
-        )}
-
       {/* Show the files along with upload button */}
-      {!isLoading && files.length !== 0 && (
+      {!isLoading && (
         <>
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold">Your Files</h1>
-            {/* Dialog box for the file upload dialog box */}
+            <SearchBar query={query} setQuery={setQuery} />
             <UploadButton />
           </div>
+
+          {files.length === 0 && <Placeholder />}
+          
           <div className="grid grid-cols-3 gap-4">        
             {
               files?.map(file => {
