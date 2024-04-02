@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values"
 import { MutationCtx, QueryCtx, mutation, query } from "./_generated/server"
 import { getUser } from "./users";
+import { fileTypes } from "./schema";
 
 // Mutation is an endpoint from frontend code used to alter stuff on convex database
 
@@ -28,7 +29,8 @@ export const createFile = mutation({
     args: {
         name: v.string(),
         fileId: v.id("_storage"),
-        orgId: v.string()
+        orgId: v.string(),
+        type: fileTypes
     },
     async handler(ctx, args) {
 
@@ -52,7 +54,8 @@ export const createFile = mutation({
         await ctx.db.insert('files', {
             name: args.name,
             orgId: args.orgId,
-            fileId: args.fileId
+            fileId: args.fileId,
+            type: args.type
         });
     }
 });
@@ -84,6 +87,25 @@ export const getFiles = query({
                 .collect();
     }
 });
+
+export const getFileUrl = query({
+  args: {
+    storageId: v.id('_storage')
+  },
+  async handler (ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+        throw new ConvexError("You don't have access to this organization.");
+    }
+
+    const url = await ctx.storage.getUrl(args.storageId);
+    if (!url) {
+      throw new ConvexError("This file URL doesn't exist.");
+    }
+    
+    return url; 
+  }
+})
 
 export const deleteFile = mutation({
   args: {

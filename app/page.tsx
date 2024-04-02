@@ -60,7 +60,7 @@ export default function Home() {
             {/* Dialog box for the file upload dialog box */}
             <UploadButton />
           </div>
-          <div className="grid grid-cols-4 gap-4">        
+          <div className="grid grid-cols-3 gap-4">        
             {
               files?.map(file => {
                 return <FileCard key={file._id} file={file} />

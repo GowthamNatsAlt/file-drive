@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react";
+import { Doc } from "@/convex/_generated/dataModel";
 
 
 // Form Schema with File custom type
@@ -62,20 +63,32 @@ export default function UploadButton() {
     if (!orgId) return;
     
     const postUrl = await generateUploadUrl();
+    const fileType = values.file[0].type;
+    console.log(fileType);
 
     const result = await fetch(postUrl, {
       method: "POST",
-      headers: { "Content-Type": values.file[0].type },
+      headers: { "Content-Type": fileType },
       body: values.file[0]
     });
 
     const { storageId } = await result.json();
 
+    const types = {
+      // Images
+      "image/png": "image",
+      // PDF
+      "application/pdf": "pdf",
+      // CSV
+      "text/csv": "csv"
+    } as Record<string, Doc<"files">["type"]>;
+
     try {
       await createFile({
         name: values.title,
         fileId: storageId,
-        orgId
+        orgId,
+        type: types[fileType]
       });
 
       form.reset();
