@@ -97,6 +97,7 @@ export const getFiles = query({
     }
 });
 
+// Access file using  storage ID 
 export const getFileUrl = query({
   args: {
     storageId: v.id('_storage')
@@ -116,6 +117,7 @@ export const getFileUrl = query({
   }
 })
 
+// Delete file using file ID
 export const deleteFile = mutation({
   args: {
     fileId: v.id('files')
