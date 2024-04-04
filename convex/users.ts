@@ -20,13 +20,12 @@ export async function getUser(
     return user
 }
 
-
+// Create a new user and set organization id as empty
 export const createUser = internalMutation({
     args: {
         tokenIdentifier: v.string()
     },
     async handler(ctx, args) {
-        // Create a new user with organization id empty
         await ctx.db.insert("users", {
             tokenIdentifier: args. tokenIdentifier,
             orgIds: []
@@ -34,6 +33,7 @@ export const createUser = internalMutation({
     }
 });
 
+// Add organization Id to the user
 export const addOrgIdToUser = internalMutation({
     args: { 
         tokenIdentifier: v.string(), 
