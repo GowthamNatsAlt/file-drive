@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { MutationCtx, QueryCtx, internalMutation } from "./_generated/server";
+import { roles } from "./schema";
 
 // Get user from id with exception that it might not exist
 export async function getUser(
@@ -37,7 +38,8 @@ export const createUser = internalMutation({
 export const addOrgIdToUser = internalMutation({
     args: { 
         tokenIdentifier: v.string(), 
-        orgId: v.string()
+        orgId: v.string(),
+        role: roles
     },
     async handler(ctx, args) {
 
@@ -46,7 +48,7 @@ export const addOrgIdToUser = internalMutation({
 
         // Update user document to add the new organization id
         await ctx.db.patch(user._id, {
-            orgIds: [...user.orgIds, args.orgId]
+            orgIds: [...user.orgIds, { orgId: args.orgId, role: args.role }]
         });
     },
 })

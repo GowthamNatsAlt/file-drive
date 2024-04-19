@@ -36,7 +36,10 @@ async function hasAccessToOrg(
     }
 
     // Check if user has access
-    const hasAccess = user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId);
+    const hasAccess = user.orgIds.some(
+      item => item.orgId === orgId
+    ) || user.tokenIdentifier.includes(orgId);
+
     if (!hasAccess) {
       return null;
     }
